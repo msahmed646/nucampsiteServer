@@ -3,12 +3,17 @@ const User = require('../models/user');
 const passport = require('passport');
 const authenticate = require('../authenticate');
 
-
 const router = express.Router();
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-    res.send('respond with a resource');
+router.get('/', authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+    User.find()
+    .then(users => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(users);
+    })
+    .catch(err => next(err));
 });
 
 router.post('/signup', (req, res) => {
@@ -63,5 +68,15 @@ router.get('/logout', (req, res, next) => {
         return next(err);
     }
 });
+
+// router.get('/users', authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+//     User.find()
+//     .then(users => {
+//         res.statusCode = 200;
+//         res.setHeader('Content-Type', 'application/json');
+//         res.json(users)
+//     })
+//     .catch(err => next(err));
+// });
 
 module.exports = router;
